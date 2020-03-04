@@ -46,20 +46,28 @@ export default function App() {
 
   useEffect(() => {
     console.log("input changed");
+    console.log({ midiInput });
     if (!WebMidi.inputs) {
       return;
     }
 
     WebMidi.inputs.forEach(i => i.removeListener());
+    if (midiInput && midiInput.addListener) {
+      console.log("adding event listener");
+      midiInput.addListener("controlchange", "all", e => {
+        console.log({ e });
+        midiOutput.sendControlChange(81, 127, 1);
+      });
+    }
   }, [midiInput]);
 
-  useEffect(() => {
-    console.log("input changed");
-    if (!WebMidi.outputs) {
-      return;
-    }
-    WebMidi.outputs.forEach(i => i.removeListener());
-  }, [midiOutput]);
+  // useEffect(() => {
+  //   console.log("input changed");
+  //   if (!WebMidi.outputs) {
+  //     return;
+  //   }
+  //   WebMidi.outputs.forEach(i => i.removeListener());
+  // }, [midiOutput]);
   return (
     <div className="App">
       <FormControl className={classes.formControl}>
@@ -68,9 +76,11 @@ export default function App() {
           labelId="midi-input-label"
           id="midi-input-select"
           value={(midiInput || {}).id}
-          onChange={v =>
-            setMidiInput(WebMidi.getInputById(v.target.value as string))
-          }
+          onChange={v => {
+            const input = WebMidi.getInputById(v.target.value as string);
+            console.log({ value: v.target.value, input });
+            setMidiInput(input);
+          }}
         >
           {WebMidi.inputs &&
             WebMidi.inputs.map((mi: Input) => (
