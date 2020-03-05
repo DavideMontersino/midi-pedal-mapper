@@ -58,6 +58,13 @@ export default function App() {
         console.log({ e });
         midiOutput.sendControlChange(81, 127, 1);
       });
+      midiInput.addListener("programchange", "all", e => {
+        console.log({ e });
+        console.log(`${e.type} ${e.value}`);
+        if (e.value !== 0) {
+          midiOutput.sendControlChange(e.value, 127, 1);
+        }
+      });
     }
   }, [midiInput]);
 
